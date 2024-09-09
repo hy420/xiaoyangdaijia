@@ -1,0 +1,58 @@
+package com.yang.daijia.map.client;
+
+import com.yang.daijia.common.result.Result;
+import com.yang.daijia.model.form.map.SearchNearByDriverForm;
+import com.yang.daijia.model.form.map.UpdateDriverLocationForm;
+import com.yang.daijia.model.form.map.UpdateOrderLocationForm;
+import com.yang.daijia.model.vo.map.NearByDriverVo;
+import com.yang.daijia.model.vo.map.OrderLocationVo;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.*;
+
+
+import java.util.List;
+
+@FeignClient(value = "service-map")
+public interface LocationFeignClient {
+
+    /**
+     * 开启接单服务：更新司机经纬度位置
+     * @param updateDriverLocationForm
+     * @return
+     */
+    @PostMapping("/map/location/updateDriverLocation")
+    Result<Boolean> updateDriverLocation(@RequestBody UpdateDriverLocationForm updateDriverLocationForm);
+
+    /**
+     * 关闭接单服务：删除司机经纬度位置
+     * @param driverId
+     * @return
+     */
+    @DeleteMapping("/map/location/removeDriverLocation/{driverId}")
+    Result<Boolean> removeDriverLocation(@PathVariable("driverId") Long driverId);
+
+    /**
+     * 搜索附近的司机
+     * @param searchNearByDriverForm
+     * @return
+     */
+    @PostMapping("/map/location/searchNearByDriver")
+    Result<List<NearByDriverVo>> searchNearByDriver(@RequestBody
+                                                            SearchNearByDriverForm searchNearByDriverForm);
+
+    /**
+     * 司机赶往代驾起始点：更新订单地址到缓存
+     * @param updateOrderLocationForm
+     * @return
+     */
+    @PostMapping("/map/location/updateOrderLocationToCache")
+    Result<Boolean> updateOrderLocationToCache(@RequestBody UpdateOrderLocationForm updateOrderLocationForm);
+
+    /**
+     * 司机赶往代驾起始点：获取订单经纬度位置
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/map/location/getCacheOrderLocation/{orderId}")
+    Result<OrderLocationVo> getCacheOrderLocation(@PathVariable("orderId") Long orderId);
+}
