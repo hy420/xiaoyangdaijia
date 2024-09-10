@@ -100,7 +100,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             //获取锁
             boolean flag = lock.tryLock(RedisConstant.ROB_NEW_ORDER_LOCK_WAIT_TIME,RedisConstant.ROB_NEW_ORDER_LOCK_LEASE_TIME, TimeUnit.SECONDS);
             if(flag) {
-                if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
+                if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK + orderId)) {
                     //抢单失败
                     throw new GuiguException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
                 }

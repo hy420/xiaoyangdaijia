@@ -38,7 +38,7 @@ public class OrderController {
     }
 
     @Operation(summary = "预估订单数据")
-    @YangLogin
+    // @YangLogin
     @PostMapping("/expectOrder")
     public Result<ExpectOrderVo> expectOrder(@RequestBody ExpectOrderForm expectOrderForm) {
         return Result.ok(orderService.expectOrder(expectOrderForm));
