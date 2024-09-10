@@ -5,12 +5,16 @@ import com.yang.daijia.common.result.Result;
 import com.yang.daijia.common.util.AuthContextHolder;
 import com.yang.daijia.driver.service.OrderService;
 import com.yang.daijia.model.form.map.CalculateDrivingLineForm;
+import com.yang.daijia.model.form.order.OrderFeeForm;
+import com.yang.daijia.model.form.order.StartDriveForm;
 import com.yang.daijia.model.form.order.UpdateOrderCartForm;
+import com.yang.daijia.model.vo.base.PageVo;
 import com.yang.daijia.model.vo.map.DrivingLineVo;
 import com.yang.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.yang.daijia.model.vo.order.NewOrderDataVo;
 import com.yang.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +92,55 @@ public class OrderController {
         Long driverId = AuthContextHolder.getUserId();
         updateOrderCartForm.setDriverId(driverId);
         return Result.ok(orderService.updateOrderCart(updateOrderCartForm));
+    }
+
+    @Operation(summary = "开始代驾服务")
+    @YangLogin
+    @PostMapping("/startDrive")
+    public Result<Boolean> startDrive(@RequestBody StartDriveForm startDriveForm) {
+        Long driverId = AuthContextHolder.getUserId();
+        startDriveForm.setDriverId(driverId);
+        return Result.ok(orderService.startDrive(startDriveForm));
+    }
+
+//    @Operation(summary = "结束代驾服务更新订单账单")
+//    @YangLogin
+//    @PostMapping("/endDrive")
+//    public Result<Boolean> endDrive(@RequestBody OrderFeeForm orderFeeForm) {
+//        Long driverId = AuthContextHolder.getUserId();
+//        orderFeeForm.setDriverId(driverId);
+//        return Result.ok(orderService.endDrive(orderFeeForm));
+//    }
+
+    @Operation(summary = "结束代驾服务更新订单账单")
+    @YangLogin
+    @PostMapping("/endDrive")
+    public Result<Boolean> endDrive(@RequestBody OrderFeeForm orderFeeForm) {
+        Long driverId = AuthContextHolder.getUserId();
+        orderFeeForm.setDriverId(driverId);
+        return Result.ok(orderService.endDriveThread(orderFeeForm));
+    }
+
+    @Operation(summary = "获取司机订单分页列表")
+    @YangLogin
+    @GetMapping("findDriverOrderPage/{page}/{limit}")
+    public Result<PageVo> findDriverOrderPage(
+            @Parameter(name = "page", description = "当前页码", required = true)
+            @PathVariable Long page,
+
+            @Parameter(name = "limit", description = "每页记录数", required = true)
+            @PathVariable Long limit) {
+        Long driverId = AuthContextHolder.getUserId();
+        PageVo pageVo = orderService.findDriverOrderPage(driverId, page, limit);
+        return Result.ok(pageVo);
+    }
+
+    @Operation(summary = "司机发送账单信息")
+    @YangLogin
+    @GetMapping("/sendOrderBillInfo/{orderId}")
+    public Result<Boolean> sendOrderBillInfo(@PathVariable Long orderId) {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.sendOrderBillInfo(orderId, driverId));
     }
 }
 

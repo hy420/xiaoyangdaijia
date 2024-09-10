@@ -1,7 +1,10 @@
 package com.yang.daijia.driver.service;
 
 import com.yang.daijia.model.form.map.CalculateDrivingLineForm;
+import com.yang.daijia.model.form.order.OrderFeeForm;
+import com.yang.daijia.model.form.order.StartDriveForm;
 import com.yang.daijia.model.form.order.UpdateOrderCartForm;
+import com.yang.daijia.model.vo.base.PageVo;
 import com.yang.daijia.model.vo.map.DrivingLineVo;
 import com.yang.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.yang.daijia.model.vo.order.NewOrderDataVo;
@@ -36,4 +39,20 @@ public interface OrderService {
 
     // 更新代驾车辆信息
     Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm);
+
+    // 开始代驾服务
+    Boolean startDrive(StartDriveForm startDriveForm);
+
+    // 结束代驾服务更新订单账单
+    Boolean endDrive(OrderFeeForm orderFeeForm);
+
+    // 获取司机订单分页列表
+    PageVo findDriverOrderPage(Long driverId, Long page, Long limit);
+
+    //使用多线程CompletableFuture实现
+    // 结束代驾服务更新订单账单
+    Boolean endDriveThread(OrderFeeForm orderFeeForm);
+
+    // 司机发送账单信息
+    Boolean sendOrderBillInfo(Long orderId, Long driverId);
 }

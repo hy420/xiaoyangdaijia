@@ -1,11 +1,14 @@
 package com.yang.daijia.map.service;
 
+import com.yang.daijia.model.form.map.OrderServiceLocationForm;
 import com.yang.daijia.model.form.map.SearchNearByDriverForm;
 import com.yang.daijia.model.form.map.UpdateDriverLocationForm;
 import com.yang.daijia.model.form.map.UpdateOrderLocationForm;
 import com.yang.daijia.model.vo.map.NearByDriverVo;
 import com.yang.daijia.model.vo.map.OrderLocationVo;
+import com.yang.daijia.model.vo.map.OrderServiceLastLocationVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface LocationService {
@@ -24,4 +27,13 @@ public interface LocationService {
 
     //司机赶往代驾起始点：获取订单经纬度位置
     OrderLocationVo getCacheOrderLocation(Long orderId);
+
+    //批量保存代驾服务订单位置
+    Boolean saveOrderServiceLocation(List<OrderServiceLocationForm> orderLocationServiceFormList);
+
+    //代驾服务：获取订单服务最后一个位置信息
+    OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId);
+
+    // 代驾服务：计算订单实际里程
+    BigDecimal calculateOrderRealDistance(Long orderId);
 }

@@ -9,17 +9,21 @@ import com.yang.daijia.driver.client.DriverInfoFeignClient;
 import com.yang.daijia.map.client.LocationFeignClient;
 import com.yang.daijia.map.client.MapFeignClient;
 import com.yang.daijia.model.entity.order.OrderInfo;
+import com.yang.daijia.model.enums.OrderStatus;
 import com.yang.daijia.model.form.customer.ExpectOrderForm;
 import com.yang.daijia.model.form.customer.SubmitOrderForm;
 import com.yang.daijia.model.form.map.CalculateDrivingLineForm;
 import com.yang.daijia.model.form.order.OrderInfoForm;
 import com.yang.daijia.model.form.rules.FeeRuleRequestForm;
+import com.yang.daijia.model.vo.base.PageVo;
 import com.yang.daijia.model.vo.customer.ExpectOrderVo;
 import com.yang.daijia.model.vo.dispatch.NewOrderTaskVo;
 import com.yang.daijia.model.vo.driver.DriverInfoVo;
 import com.yang.daijia.model.vo.map.DrivingLineVo;
 import com.yang.daijia.model.vo.map.OrderLocationVo;
+import com.yang.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.yang.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.yang.daijia.model.vo.order.OrderBillVo;
 import com.yang.daijia.model.vo.order.OrderInfoVo;
 import com.yang.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.yang.daijia.order.client.OrderInfoFeignClient;
@@ -143,9 +147,24 @@ public class OrderServiceImpl implements OrderService {
             throw new GuiguException(ResultCodeEnum.ILLEGAL_REQUEST);
         }
 
+        //获取司机信息
+        DriverInfoVo driverInfoVo = null;
+        Long driverId = orderInfo.getDriverId();
+        if(driverId != null) {
+            driverInfoVo = driverInfoFeignClient.getDriverInfoOrder(driverId).getData();
+        }
+
+        //获取账单信息
+        OrderBillVo orderBillVo = null;
+        if(orderInfo.getStatus() >= OrderStatus.UNPAID.getStatus()) {
+            orderBillVo = orderInfoFeignClient.getOrderBillInfo(orderId).getData();
+        }
+
         OrderInfoVo orderInfoVo = new OrderInfoVo();
         orderInfoVo.setOrderId(orderId);
         BeanUtils.copyProperties(orderInfo,orderInfoVo);
+        orderInfoVo.setOrderBillVo(orderBillVo);
+        orderInfoVo.setDriverInfoVo(driverInfoVo);
         return orderInfoVo;
     }
 
@@ -170,5 +189,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm) {
         return mapFeignClient.calculateDrivingLine(calculateDrivingLineForm).getData();
+    }
+
+    // 代驾服务：获取订单服务最后一个位置信息
+    @Override
+    public OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId) {
+        return locationFeignClient.getOrderServiceLastLocation(orderId).getData();
+    }
+
+    // 获取乘客订单分页列表
+    @Override
+    public PageVo findCustomerOrderPage(Long customerId, Long page, Long limit) {
+        return orderInfoFeignClient.findCustomerOrderPage(customerId,page,limit).getData();
     }
 }

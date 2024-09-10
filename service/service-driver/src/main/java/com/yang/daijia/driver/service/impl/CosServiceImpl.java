@@ -8,7 +8,10 @@ import com.qcloud.cos.http.HttpMethodName;
 import com.qcloud.cos.http.HttpProtocol;
 import com.qcloud.cos.model.*;
 import com.qcloud.cos.region.Region;
+import com.yang.daijia.common.execption.GuiguException;
+import com.yang.daijia.common.result.ResultCodeEnum;
 import com.yang.daijia.driver.config.TencentCloudProperties;
+import com.yang.daijia.driver.service.CiService;
 import com.yang.daijia.driver.service.CosService;
 import com.yang.daijia.model.vo.driver.CosUploadVo;
 import jakarta.annotation.Resource;
@@ -30,6 +33,9 @@ public class CosServiceImpl implements CosService {
 
     @Resource
     private TencentCloudProperties tencentCloudProperties;
+
+    @Resource
+    private CiService ciService;
 
     // 文件上传
     @Override
@@ -62,6 +68,13 @@ public class CosServiceImpl implements CosService {
         }
         putObjectRequest.setStorageClass(StorageClass.Standard);
         PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest); //上传文件
+        //图片审核
+        Boolean imageAuditing = ciService.imageAuditing(uploadPath);
+        if(!imageAuditing) {
+            //删除违规图片
+            cosClient.deleteObject(tencentCloudProperties.getBucketPrivate(),uploadPath);
+            throw new GuiguException(ResultCodeEnum.IMAGE_AUDITION_FAIL);
+        }
         cosClient.shutdown();
 
         //返回vo对象

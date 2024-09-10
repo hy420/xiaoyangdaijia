@@ -1,15 +1,18 @@
 package com.yang.daijia.map.client;
 
 import com.yang.daijia.common.result.Result;
+import com.yang.daijia.model.form.map.OrderServiceLocationForm;
 import com.yang.daijia.model.form.map.SearchNearByDriverForm;
 import com.yang.daijia.model.form.map.UpdateDriverLocationForm;
 import com.yang.daijia.model.form.map.UpdateOrderLocationForm;
 import com.yang.daijia.model.vo.map.NearByDriverVo;
 import com.yang.daijia.model.vo.map.OrderLocationVo;
+import com.yang.daijia.model.vo.map.OrderServiceLastLocationVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @FeignClient(value = "service-map")
@@ -55,4 +58,28 @@ public interface LocationFeignClient {
      */
     @GetMapping("/map/location/getCacheOrderLocation/{orderId}")
     Result<OrderLocationVo> getCacheOrderLocation(@PathVariable("orderId") Long orderId);
+
+    /**
+     * 开始代驾服务：保存代驾服务订单位置
+     * @param orderLocationServiceFormList
+     * @return
+     */
+    @PostMapping("/map/location/saveOrderServiceLocation")
+    Result<Boolean> saveOrderServiceLocation(@RequestBody List<OrderServiceLocationForm> orderLocationServiceFormList);
+
+    /**
+     * 代驾服务：获取订单服务最后一个位置信息
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/map/location/getOrderServiceLastLocation/{orderId}")
+    Result<OrderServiceLastLocationVo> getOrderServiceLastLocation(@PathVariable Long orderId);
+
+    /**
+     * 代驾服务：计算订单实际里程
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/map/location/calculateOrderRealDistance/{orderId}")
+    Result<BigDecimal> calculateOrderRealDistance(@PathVariable Long orderId);
 }
