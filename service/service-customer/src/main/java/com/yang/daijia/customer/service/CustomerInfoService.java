@@ -15,4 +15,7 @@ public interface CustomerInfoService extends IService<CustomerInfo> {
 
     // 更新客户微信手机号码
     Boolean updateWxPhoneNumber(UpdateWxPhoneForm updateWxPhoneForm);
+
+    // 获取客户OpenId
+    String getCustomerOpenId(Long customerId);
 }

@@ -7,6 +7,7 @@ import com.yang.daijia.customer.service.OrderService;
 import com.yang.daijia.model.form.customer.ExpectOrderForm;
 import com.yang.daijia.model.form.customer.SubmitOrderForm;
 import com.yang.daijia.model.form.map.CalculateDrivingLineForm;
+import com.yang.daijia.model.form.payment.CreateWxPaymentForm;
 import com.yang.daijia.model.vo.base.PageVo;
 import com.yang.daijia.model.vo.customer.ExpectOrderVo;
 import com.yang.daijia.model.vo.driver.DriverInfoVo;
@@ -15,6 +16,7 @@ import com.yang.daijia.model.vo.map.OrderLocationVo;
 import com.yang.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.yang.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.yang.daijia.model.vo.order.OrderInfoVo;
+import com.yang.daijia.model.vo.payment.WxPrepayVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -111,6 +113,22 @@ public class OrderController {
         Long customerId = AuthContextHolder.getUserId();
         PageVo pageVo = orderService.findCustomerOrderPage(customerId, page, limit);
         return Result.ok(pageVo);
+    }
+
+    @Operation(summary = "创建微信支付")
+    @YangLogin
+    @PostMapping("/createWxPayment")
+    public Result<WxPrepayVo> createWxPayment(@RequestBody CreateWxPaymentForm createWxPaymentForm) {
+        Long customerId = AuthContextHolder.getUserId();
+        createWxPaymentForm.setCustomerId(customerId);
+        return Result.ok(orderService.createWxPayment(createWxPaymentForm));
+    }
+
+    @Operation(summary = "支付状态查询")
+    @YangLogin
+    @GetMapping("/queryPayStatus/{orderNo}")
+    public Result<Boolean> queryPayStatus(@PathVariable String orderNo) {
+        return Result.ok(orderService.queryPayStatus(orderNo));
     }
 }
 

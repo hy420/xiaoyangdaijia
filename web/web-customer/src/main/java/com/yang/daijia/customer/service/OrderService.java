@@ -3,6 +3,7 @@ package com.yang.daijia.customer.service;
 import com.yang.daijia.model.form.customer.ExpectOrderForm;
 import com.yang.daijia.model.form.customer.SubmitOrderForm;
 import com.yang.daijia.model.form.map.CalculateDrivingLineForm;
+import com.yang.daijia.model.form.payment.CreateWxPaymentForm;
 import com.yang.daijia.model.vo.base.PageVo;
 import com.yang.daijia.model.vo.customer.ExpectOrderVo;
 import com.yang.daijia.model.vo.driver.DriverInfoVo;
@@ -11,6 +12,7 @@ import com.yang.daijia.model.vo.map.OrderLocationVo;
 import com.yang.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.yang.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.yang.daijia.model.vo.order.OrderInfoVo;
+import com.yang.daijia.model.vo.payment.WxPrepayVo;
 
 public interface OrderService {
 
@@ -43,4 +45,10 @@ public interface OrderService {
 
     // 获取乘客订单分页列表
     PageVo findCustomerOrderPage(Long customerId, Long page, Long limit);
+
+    //创建微信支付
+    WxPrepayVo createWxPayment(CreateWxPaymentForm createWxPaymentForm);
+
+    // 支付状态查询
+    Boolean queryPayStatus(String orderNo);
 }

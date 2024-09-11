@@ -8,9 +8,7 @@ import com.yang.daijia.model.form.order.StartDriveForm;
 import com.yang.daijia.model.form.order.UpdateOrderBillForm;
 import com.yang.daijia.model.form.order.UpdateOrderCartForm;
 import com.yang.daijia.model.vo.base.PageVo;
-import com.yang.daijia.model.vo.order.CurrentOrderInfoVo;
-import com.yang.daijia.model.vo.order.OrderBillVo;
-import com.yang.daijia.model.vo.order.OrderProfitsharingVo;
+import com.yang.daijia.model.vo.order.*;
 
 public interface OrderInfoService extends IService<OrderInfo> {
 
@@ -58,4 +56,13 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     // 发送账单信息
     Boolean sendOrderBillInfo(Long orderId, Long driverId);
+
+    // 获取订单支付信息
+    OrderPayVo getOrderPayVo(String orderNo, Long customerId);
+
+    // 更改订单支付状态
+    Boolean updateOrderPayStatus(String orderNo);
+
+    // 获取订单的系统奖励
+    OrderRewardVo getOrderRewardFee(String orderNo);
 }
