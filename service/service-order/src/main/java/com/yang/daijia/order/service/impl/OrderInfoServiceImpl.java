@@ -25,13 +25,17 @@ import com.yang.daijia.order.service.OrderInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.redisson.Redisson;
+import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RDelayedQueue;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +75,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderInfo.setStatus(OrderStatus.WAITING_ACCEPT.getStatus());
         orderInfoMapper.insert(orderInfo);
 
+        //生成订单之后，发送延迟消息
+        this.sendDelayMessage(orderInfo.getId());
+
         //记录日志
         this.log(orderInfo.getId(),orderInfo.getStatus());
 
@@ -80,6 +87,26 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 "0", RedisConstant.ORDER_ACCEPT_MARK_EXPIRES_TIME, TimeUnit.MINUTES);
 
         return orderInfo.getId();
+    }
+
+    //生成订单之后，发送延迟消息
+    private void sendDelayMessage(Long orderId) {
+
+        try{
+            //1 创建队列
+            RBlockingQueue<Object> blockingQueue = redissonClient.getBlockingQueue("queue_cancel");
+
+            //2 把创建队列放到延迟队列里面
+            RDelayedQueue<Object> delayedQueue = redissonClient.getDelayedQueue(blockingQueue);
+
+            //3 发送消息到延迟队列里面
+            //设置过期时间
+            delayedQueue.offer(orderId.toString(),15,TimeUnit.MINUTES);
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
     }
 
     //根据订单id获取订单状态
@@ -447,6 +474,35 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderRewardVo.setDriverId(orderInfo.getDriverId());
         orderRewardVo.setRewardFee(orderBill.getRewardFee());
         return orderRewardVo;
+    }
+
+    //调用方法取消订单
+    @Override
+    public void orderCancel(long orderId) {
+        //orderId查询订单信息
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        //判断
+        if(orderInfo.getStatus()==OrderStatus.WAITING_ACCEPT.getStatus()) {
+            //修改订单状态：取消状态
+            orderInfo.setStatus(OrderStatus.CANCEL_ORDER.getStatus());
+            int rows = orderInfoMapper.updateById(orderInfo);
+            if(rows == 1) {
+                //删除接单标识
+
+                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK + orderId);
+            }
+        }
+    }
+
+    // 更新订单优惠券金额
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean updateCouponAmount(Long orderId, BigDecimal couponAmount) {
+        int row = orderBillMapper.updateCouponAmount(orderId, couponAmount);
+        if(row != 1) {
+            throw new GuiguException(ResultCodeEnum.UPDATE_ERROR);
+        }
+        return true;
     }
 
     public void log(Long orderId, Integer status) {

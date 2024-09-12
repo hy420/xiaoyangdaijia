@@ -10,6 +10,8 @@ import com.yang.daijia.model.form.order.UpdateOrderCartForm;
 import com.yang.daijia.model.vo.base.PageVo;
 import com.yang.daijia.model.vo.order.*;
 
+import java.math.BigDecimal;
+
 public interface OrderInfoService extends IService<OrderInfo> {
 
     //乘客下单
@@ -65,4 +67,10 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     // 获取订单的系统奖励
     OrderRewardVo getOrderRewardFee(String orderNo);
+
+    //调用方法取消订单
+    void orderCancel(long orderId);
+
+    // 更新订单优惠券金额
+    Boolean updateCouponAmount(Long orderId, BigDecimal couponAmount);
 }

@@ -13,9 +13,9 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
 	<sql id="columns">
 		info.id,info.coupon_type,info.name,info.amount,info.discount,info.condition_amount,info.publish_count,info.per_limit,info.use_count,info.receive_count,info.expire_time,info.describe,info.status,info.create_time,info.update_time,info.is_deleted
 	</sql>
-	
-     <select id="findNoReceivePage" resultType="com.yang.daijia.model.vo.coupon.NoReceiveCouponVo">
-    	select
+
+	<select id="findNoReceivePage" resultType="com.yang.daijia.model.vo.coupon.NoReceiveCouponVo">
+		select
 			info.id,
 			info.coupon_type,
 			info.name,
@@ -25,16 +25,19 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
 			info.publish_count,
 			info.per_limit,
 			info.expire_time,
-			info.describe
+			info.description
 		from coupon_info info
+				 left join (
+			select coupon_id, customer_id, count(customer_id) cnt  from customer_coupon where customer_id = #{customerId}  group by coupon_id, customer_id
+		) cus_coup on cus_coup.coupon_id = info.id
 		where
-		    info.status = 1
-			and info.receive_count &lt; info.publish_count
-			and (
-			    info.per_limit =0 or info.per_limit &lt; (select count(1) from customer_coupon where customer_id = #{customerId})
+			info.status = 1
+		  and info.receive_count &lt; info.publish_count
+		  and (
+					info.per_limit =0 or info.per_limit > cus_coup.cnt or cus_coup.cnt is null
 			)
 		order by info.id desc
-    </select>
+	</select>
 
 	<select id="findNoUsePage" resultType="com.yang.daijia.model.vo.coupon.NoUseCouponVo">
 		select
