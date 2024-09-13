@@ -50,7 +50,7 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
 			info.publish_count,
 			info.per_limit,
 			info.expire_time,
-			info.describe,
+			info.description,
 
 			cstr.receive_time
 		from coupon_info info
@@ -73,7 +73,7 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
 			info.publish_count,
 			info.per_limit,
 			info.expire_time,
-			info.describe,
+			info.description,
 
 			cstr.id as customerCouponId,
 			cstr.used_time
@@ -104,7 +104,7 @@ PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
 			info.publish_count,
 			info.per_limit,
 			info.expire_time,
-			info.describe,
+			info.description,
 
 			cstr.id as customerCouponId,
 			cstr.receive_time

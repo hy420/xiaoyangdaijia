@@ -6,8 +6,9 @@ import com.yang.daijia.order.mapper.OrderMonitorMapper;
 import com.yang.daijia.order.repository.OrderMonitorRecordRepository;
 import com.yang.daijia.order.service.OrderMonitorService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yang.daijia.system.client.SysDeptFeignClient;
+
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
